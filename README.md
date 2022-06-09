@@ -1,4 +1,4 @@
-# testing_app  Demo also
+# testing_app  Demo
 
 A Sample app that shows different types of testing in Flutter.
 
