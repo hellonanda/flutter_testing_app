@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "production-weapp",
+    "prod": "production-weapp"
+  },
+  "targets": {}
+}

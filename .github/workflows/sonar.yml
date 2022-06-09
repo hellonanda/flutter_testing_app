@@ -1,0 +1,15 @@
+name: sonarscan
+on: push
+jobs:
+    hosting:
+      name: sonar cloud
+      runs-on: ubuntu-latest
+      steps:
+        # Checkout Repository
+        - name: code 
+          uses: actions/checkout@v1
+        - name: sonar scan
+          uses: SonarSource/sonarcloud-github-action@master
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
