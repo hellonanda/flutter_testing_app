@@ -1,4 +1,4 @@
-name: sonarscan
+name: sonarscan & osv scanner
 on: push
 jobs:
     hosting:
@@ -8,8 +8,14 @@ jobs:
         # Checkout Repository
         - name: code 
           uses: actions/checkout@v1
-        - name: sonar scan
-          uses: SonarSource/sonarcloud-github-action@master
-          env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # - name: sonar scan
+        #   uses: SonarSource/sonarcloud-github-action@master
+        #   env:
+        #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+        - name: osv scanner
+          run: |
+            go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+
+            osv-scanner --sbom=./sbom.spdx.json  --json >> ./osv-results.json || exit_code=$?
