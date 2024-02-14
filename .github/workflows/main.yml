@@ -66,4 +66,13 @@ jobs:
             
             go install github.com/google/osv-scanner/cmd/osv-scanner@v1
             osv-scanner --sbom=./sbom.spdx.json  --json >> ./osv-results.json || exit_code=$?
+
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: osv-syft
+            path: |
+              sbom.spdx.json
+              osv-results.json
+            retention-days: 1
        
