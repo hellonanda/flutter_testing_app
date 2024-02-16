@@ -20,13 +20,23 @@ jobs:
         #   env:
         #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        - uses: actions/setup-go@v5
-          with:
-           go-version: '^1.17'
-        - name: osv scanner
-          run: |
-            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
-            ./syft apps_ci:latest --scope all-layers -o spdx-json=sbom.spdx.json
+        # - uses: actions/setup-go@v5
+        #   with:
+        #    go-version: '^1.17'
+        # - name: osv scanner
+        #   run: |
+        #     curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+        #     ./syft apps_ci:latest --scope all-layers -o spdx-json=sbom.spdx.json
             
-            go install github.com/google/osv-scanner/cmd/osv-scanner@v1
-            osv-scanner --sbom=./sbom.spdx.json  --json >> ./osv-results.json || exit_code=$?
+        #     go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+        #     osv-scanner --sbom=./sbom.spdx.json  --json >> ./osv-results.json || exit_code=$?
+
+        - name: Run Load Test
+          uses: apardo04/locust-github-action@master
+          with:
+           LOCUSTFILE: "locustfile.py"
+           REQUIREMENTS: "requirements.txt"
+           URL:  "https://api.nftix-d2-stg.sncs-sw3.jp"
+           USERS: "5000"
+           RATE: "500"
+           RUNTIME: "1000s"
