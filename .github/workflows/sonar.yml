@@ -34,9 +34,7 @@ jobs:
         - name: Run Load Test
           uses: apardo04/locust-github-action@master
           with:
-           LOCUSTFILE: "locustfile.py"
-           REQUIREMENTS: "requirements.txt"
-           URL:  "https://api.nftix-d2-stg.sncs-sw3.jp"
+           URL:  "https://api.nftix-d2-stg.sncs-sw3.jp/docs"
            USERS: "5000"
            RATE: "500"
            RUNTIME: "1000s"
