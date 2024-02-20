@@ -1,9 +1,10 @@
 name: Build and Release flutter based webapp
 on:
-  push:
-       branches:
-       - master
-        
+  # push:
+  #      branches:
+  #      - master
+
+  workflow_dispatch: {}
 jobs:
     hosting:
       name: Deploy Website
@@ -13,15 +14,15 @@ jobs:
         - uses: actions/checkout@v1
 
         # Install Flutter command
-        - uses: subosito/flutter-action@v1
-          with:
-            channel: 'dev'
+        # - uses: subosito/flutter-action@v1
+        #   with:
+        #     channel: 'dev'
 
-        # Build Website
-        - name: Build Website
-          run: |
-            flutter config --enable-web
-            flutter build web
+        # # Build Website
+        # - name: Build Website
+        #   run: |
+        #     flutter config --enable-web
+        #     flutter build web
 
         # Deploy Firebase Hosting
        # - name: Deploy Firebase Hosting
@@ -31,48 +32,67 @@ jobs:
           #env:
           # FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
            #PROJECT_PATH: ./build/web
-        - name: creating container env
-          uses: docker/setup-buildx-action@v1
-        - name: docker login 
-          uses: docker/login-action@v1
-          env:
-              GIT_USER: ${{ github.actor}}
-              GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-           registry: ghcr.io
-           username: $env.GIT_USER
-           password: ${{ env.GIT_TOKEN }}
-        - name: build & publish docker image
-          uses: docker/build-push-action@v2
-          env: 
-              REGISTRY: ghcr.io
-          with:
-           context: .
-           file: ./Dockerfile
-           push: true
-           tags: ${{ env.REGISTRY }}/${{ github.repository }}/flutter:1
+        # - name: creating container env
+        #   uses: docker/setup-buildx-action@v1
+        # - name: docker login 
+        #   uses: docker/login-action@v1
+        #   env:
+        #       GIT_USER: ${{ github.actor}}
+        #       GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #   with:
+        #    registry: ghcr.io
+        #    username: $env.GIT_USER
+        #    password: ${{ env.GIT_TOKEN }}
+        # - name: build & publish docker image
+        #   uses: docker/build-push-action@v2
+        #   env: 
+        #       REGISTRY: ghcr.io
+        #   with:
+        #    context: .
+        #    file: ./Dockerfile
+        #    push: true
+        #    tags: ${{ env.REGISTRY }}/${{ github.repository }}/flutter:1
         
-        - name: listing images
-          run: 
-             docker images
+        # - name: listing images
+        #   run: 
+        #      docker images
 
-        - uses: actions/setup-go@v5
-          with:
-           go-version: '^1.17'
-        - name: osv scanner
-          run: |
-            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
-            ./syft ghcr.io/hellonanda/flutter_testing_app/flutter:1 --scope all-layers -o spdx-json=sbom.spdx.json
+        # - uses: actions/setup-go@v5
+        #   with:
+        #    go-version: '^1.17'
+        # - name: osv scanner
+        #   run: |
+        #     curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+        #     ./syft ghcr.io/hellonanda/flutter_testing_app/flutter:1 --scope all-layers -o spdx-json=sbom.spdx.json
             
-            go install github.com/google/osv-scanner/cmd/osv-scanner@v1
-            osv-scanner --sbom=./sbom.spdx.json  --json 
+        #    
 
 
-        - uses: actions/upload-artifact@v4
+
+      
+
+        
+        # - name: sonar scan
+        #   uses: SonarSource/sonarcloud-github-action@master
+        #   env:
+        #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # - uses: actions/setup-go@v5
+        #   with:
+        #    go-version: '^1.17'
+        # - name: osv scanner
+        #   run: |
+        #     curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+        #     ./syft apps_ci:latest --scope all-layers -o spdx-json=sbom.spdx.json
+            
+        #     go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+        #     osv-scanner --sbom=./sbom.spdx.json  --json >> ./osv-results.json || exit_code=$?
+
+        - name: Run Load Test
+          uses: apardo04/locust-github-action@master
           with:
-            name: osv-syft
-            path: |
-              sbom.spdx.json
-              # osv-results.json
-            retention-days: 1
+           URL:  "https://api.nftix-d2-stg.sncs-sw3.jp/docs"
+           USERS: "5000"
+           RATE: "500"
+           RUNTIME: "1000s"
        
